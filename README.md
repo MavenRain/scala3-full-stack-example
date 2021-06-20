@@ -20,7 +20,7 @@ They are sent across the network in the json format using circe.
 You can use sbt to run the application.
 
 ```text
-sbt:scala3-full-stack-example> webserver / run
+scala3-full-stack-example> sbt compile webserver/run
 [info] running (fork) example.start 
 [info] Server online at http://localhost:8080/
 ```
