@@ -1,22 +1,17 @@
 package example
 
-import org.scalajs.dom.experimental.*
-import scala.scalajs.js
-
-import java.io.IOException
-
-import scala.concurrent.Future
-import scala.concurrent.ExecutionContext
-
-import io.circe.scalajs.*
-import io.circe.syntax.*
-import io.circe.parser.decode
+import cats.syntax.either.catsSyntaxEither
 import io.circe.Printer
-
-import cats.syntax.either.*
+import io.circe.parser.decode
+import io.circe.scalajs.decodeJs
+import io.circe.syntax.EncoderOps
+import java.io.IOException
+import org.scalajs.dom.experimental.{Fetch, HttpMethod, Request, Response}
+import scala.concurrent.{ExecutionContext, Future}
+import scala.scalajs.js.{Any => JsAny, Dictionary}
 
 class HttpClient(using ExecutionContext) extends NoteService:
-  private val printer: Printer = Printer(
+  private val printer = Printer(
     dropNullValues = true,
     indent = ""
   )
@@ -32,7 +27,7 @@ class HttpClient(using ExecutionContext) extends NoteService:
       "./api/notes",
       new {
         method = HttpMethod.POST
-        headers = js.Dictionary("Content-Type" -> "application/json")
+        headers = Dictionary("Content-Type" -> "application/json")
         body = printer.print(CreateNote(title, content).asJson)
       }
     )
@@ -42,6 +37,7 @@ class HttpClient(using ExecutionContext) extends NoteService:
     yield decodeJs[Note](json).valueOr(throw _)
 
   extension (resp: Response)
-    private def jsonOrFailure: Future[js.Any] =
-      if resp.ok then resp.json.toFuture
-      else Future.failed(new IOException(resp.statusText))
+    private def jsonOrFailure: Future[JsAny] =
+      if resp.ok
+      then resp.json.toFuture
+      else Future.failed(IOException(resp.statusText))

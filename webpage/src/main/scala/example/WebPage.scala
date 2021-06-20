@@ -1,49 +1,44 @@
 package example
 
-import org.scalajs.dom.html.Element
 import org.scalajs.dom.document
-import org.scalajs.dom.html.*
-
-import DomHelper.*
-
+import org.scalajs.dom.html.{Div, Element}
 import scala.concurrent.ExecutionContext
+import scala.util.chaining.scalaUtilChainingOps
 import scala.util.control.NonFatal
 
 object WebPage:
   given ExecutionContext = ExecutionContext.global
   val service = new HttpClient()
-
   val titleInput = input()
   val contentTextArea = textarea()
-
-  val saveButton = button("Create Note")
-  saveButton.onclick = _ =>
-    service
-      .createNote(titleInput.value, contentTextArea.value)
-      .map(addNote)
-
-  val form: Div = div(
+  val saveButton =
+    button("Create Note")
+      .tap(_.onclick = _ =>
+        service
+          .createNote(titleInput.value, contentTextArea.value)
+          .map(addNote)
+      )
+  val form = div(
     titleInput,
     contentTextArea,
     saveButton
-  )
-  form.className = "note-form"
+  ).tap(_.className = "note-form")
 
-  val appContainer: Div = div(
+  val appContainer = div(
     h1("My Notepad"),
     form
-  )
-  appContainer.id = "app-container"
+  ).tap(_.id = "app-container")
 
   def addNote(note: Note): Unit =
     val elem = div(
       h2(note.title),
       p(note.content)
-    )
-    elem.className = "note"
+    ).tap(_.className = "note")
     appContainer.appendChild(elem)
 
   @main def start: Unit =
     document.body.appendChild(appContainer)
-
-    for notes <- service.getAllNotes(); note <- notes do addNote(note)
+    for
+      notes <- service.getAllNotes()
+      note <- notes
+    do addNote(note)
