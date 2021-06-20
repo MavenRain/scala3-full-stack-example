@@ -1,17 +1,16 @@
 package example
 
-import io.circe.{Decoder, Encoder, Printer}
-import io.circe.parser.*
-import io.circe.syntax.*
-
-import cats.syntax.either.*
-
 import akka.http.scaladsl.unmarshalling.{FromEntityUnmarshaller, Unmarshaller}
 import akka.http.scaladsl.marshalling.{ToEntityMarshaller, Marshaller}
 import akka.http.scaladsl.model.{ContentTypes, MediaTypes}
+import cats.syntax.either.catsSyntaxEither
+import io.circe.{Decoder, Encoder, Printer}
+import io.circe.parser.decode
+import io.circe.syntax.EncoderOps
+import scala.util.chaining.scalaUtilChainingOps
 
 trait CirceSupport:
-  private val printer: Printer = Printer(
+  private val printer = Printer(
     dropNullValues = true,
     indent = ""
   )
@@ -24,6 +23,6 @@ trait CirceSupport:
   given [T: Encoder]: ToEntityMarshaller[T] =
     Marshaller
       .stringMarshaller(MediaTypes.`application/json`)
-      .compose(value => printer.print(value.asJson))
+      .compose(_.asJson.pipe(printer.print))
 
 object CirceSupport extends CirceSupport

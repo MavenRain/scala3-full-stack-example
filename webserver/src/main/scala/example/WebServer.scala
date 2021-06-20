@@ -1,11 +1,9 @@
 package example
 
 import akka.actor.ActorSystem
-import akka.http.scaladsl.*
+import akka.http.scaladsl.{Http, server}
 import com.typesafe.config.ConfigFactory
-
 import java.nio.file.Paths
-
 import scala.concurrent.ExecutionContext
 
 object WebServer extends server.Directives with CirceSupport:

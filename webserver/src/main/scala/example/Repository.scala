@@ -1,16 +1,14 @@
 package example
 
-import scala.concurrent.{Future, ExecutionContext}
-import scala.jdk.CollectionConverters.*
-
-import java.nio.file.{Path, Paths, Files, StandardOpenOption}
-import java.util.UUID
-
-import cats.syntax.either._
-
-import io.circe.syntax.*
+import cats.syntax.either.catsSyntaxEither
+import io.circe.syntax.EncoderOps
 import io.circe.parser.decode
 import io.circe.Printer
+import java.nio.file.{Path, Paths, Files, StandardOpenOption}
+import java.util.UUID
+import scala.concurrent.{Future, ExecutionContext}
+import scala.jdk.CollectionConverters.*
+import scala.util.chaining.scalaUtilChainingOps
 
 trait Repository extends NoteService
 
@@ -22,18 +20,22 @@ object Repository:
 
   def apply(directory: Path)(using ExecutionContext): Repository =
     if !Files.exists(directory) then Files.createDirectory(directory)
-    new FileRepository(directory)
+    FileRepository(directory)
 
-  private class FileRepository(directory: Path)(using ExecutionContext)
-      extends Repository:
+  private class FileRepository(directory: Path)(using ExecutionContext) extends Repository:
     def getAllNotes(): Future[Seq[Note]] = Future {
-      val files = Files.list(directory).iterator.asScala
-      files
+      Files
+        .list(directory)
+        .iterator
+        .asScala
         .filter(_.toString.endsWith(".json"))
-        .map { file =>
-          val bytes = Files.readAllBytes(file)
-          decode[Note](new String(bytes)).valueOr(throw _)
-        }
+        .map(
+          _
+            .pipe(Files.readAllBytes(_))
+            .pipe(String(_))
+            .pipe(decode[Note](_))
+            .valueOr(throw _)
+        )
         .toSeq
     }
 
