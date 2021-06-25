@@ -1,6 +1,6 @@
 package example
 
-import org.scalajs.dom.document
+import org.scalajs.dom.document.body
 import org.scalajs.dom.html.{Div, Element}
 import scala.concurrent.ExecutionContext
 import scala.util.chaining.scalaUtilChainingOps
@@ -8,7 +8,7 @@ import scala.util.control.NonFatal
 
 object WebPage:
   given ExecutionContext = ExecutionContext.global
-  val service = new HttpClient()
+  val service = HttpClient()
   val titleInput = input()
   val contentTextArea = textarea()
   val saveButton =
@@ -37,7 +37,7 @@ object WebPage:
     appContainer.appendChild(elem)
 
   @main def start: Unit =
-    document.body.appendChild(appContainer)
+    body.appendChild(appContainer)
     for
       notes <- service.getAllNotes()
       note <- notes

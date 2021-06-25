@@ -10,7 +10,7 @@ import scala.concurrent.{Future, ExecutionContext}
 import scala.jdk.CollectionConverters.*
 import scala.util.chaining.scalaUtilChainingOps
 
-trait Repository extends NoteService
+trait Repository extends NoteService[Future]
 
 object Repository:
   private val printer: Printer = Printer(

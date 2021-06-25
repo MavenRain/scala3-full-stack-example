@@ -10,7 +10,7 @@ import org.scalajs.dom.experimental.{Fetch, HttpMethod, Request, Response}
 import scala.concurrent.{ExecutionContext, Future}
 import scala.scalajs.js.{Any => JsAny, Dictionary}
 
-class HttpClient(using ExecutionContext) extends NoteService:
+class HttpClient(using ExecutionContext) extends NoteService[Future]:
   private val printer = Printer(
     dropNullValues = true,
     indent = ""
